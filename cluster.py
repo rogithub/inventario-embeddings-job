@@ -87,19 +87,19 @@ def run() -> None:
 
     print("[cluster] Guardando familias en DB...", flush=True)
     with conn.cursor() as cur:
-        cur.execute('TRUNCATE "FamiliasSemanticas" CASCADE')
+        cur.execute("TRUNCATE FamiliasSemanticas CASCADE")
 
         familia_ids: dict[int, object] = {}
         for info in cluster_info:
             cur.execute(
-                'INSERT INTO "FamiliasSemanticas" ("Nombre") VALUES (%s) RETURNING "Id"',
+                "INSERT INTO FamiliasSemanticas (Nombre) VALUES (%s) RETURNING Id",
                 (info["nombre"],)
             )
             familia_ids[info["k"]] = cur.fetchone()[0]
 
         for i, product_id in enumerate(ids):
             cur.execute(
-                'UPDATE "Productos" SET "FamiliaSemanticaId" = %s WHERE "Id" = %s',
+                "UPDATE Productos SET FamiliaSemanticaId = %s WHERE Id = %s",
                 (familia_ids[int(labels[i])], product_id)
             )
 
