@@ -87,7 +87,11 @@ def run() -> None:
 
     print("[cluster] Guardando familias en DB...", flush=True)
     with conn.cursor() as cur:
-        cur.execute("TRUNCATE FamiliasSemanticas CASCADE")
+        # DELETE, nunca TRUNCATE ... CASCADE: TRUNCATE CASCADE ignora el ON DELETE
+        # SET NULL de la FK y en su lugar trunca por completo cualquier tabla que
+        # referencie (directa o transitivamente) esta tabla -- eso vacio Productos
+        # y 13 tablas mas en produccion. DELETE si respeta ON DELETE SET NULL.
+        cur.execute("DELETE FROM FamiliasSemanticas")
 
         familia_ids: dict[int, object] = {}
         for info in cluster_info:
